@@ -11,7 +11,7 @@ export class AppComponent implements OnInit {
   title = 'algamoney-ui';
 
   constructor(
-    private config: PrimeNGConfig,
+    private config: PrimeNGConfig, 
     private translateService: TranslateService,
     private router: Router
   ) {}

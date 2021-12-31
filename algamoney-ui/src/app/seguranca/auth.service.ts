@@ -1,16 +1,15 @@
-import { environment } from './../../environments/environment';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { environment } from 'src/environments/environment';
 import * as CryptoJS from 'crypto-js';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-
   oauthTokenUrl = environment.apiUrl + '/oauth2/token';
-  oauthAuthorizeUrl = environment.apiUrl + '/oauth2/authorize';
+  oauthAuthorizeUrl = environment.apiUrl + '/oauth2/authorize'
   jwtPayload: any ;
 
   constructor(
@@ -30,9 +29,9 @@ export class AuthService {
     const challengeMethod = 'S256'
     const codeChallenge = CryptoJS.SHA256(codeVerifier)
       .toString(CryptoJS.enc.Base64)
-      .replace(/=/g, '')
-      .replace(/\+/g, '')
-      .replace(/\//g, '');
+      .replace('/=/g', '')
+      .replace('/\+/g', '')
+      .replace('/\//g', '');
 
     const redirectURI = encodeURIComponent(environment.oauthCallbackUrl);
 
@@ -53,10 +52,10 @@ export class AuthService {
     window.location.href = this.oauthAuthorizeUrl + '?' +  params.join('&');
   }
 
-  obterNovoAccessTokenComCode(code: string, state: string): Promise<any> {
+  obterNovoAccessTokenComCode(code: string, state: string) : Promise<any>{
     const stateSalvo = localStorage.getItem('state');
 
-    if(stateSalvo !== state) {
+    if (stateSalvo !== state) {
       return Promise.reject(null);
     }
 
@@ -66,26 +65,29 @@ export class AuthService {
       .append('grant_type', 'authorization_code')
       .append('code', code)
       .append('redirect_uri', environment.oauthCallbackUrl)
-      .append('code_verifier', codeVerifier)
+      .append('code_verifier', codeVerifier);
 
     const headers = new HttpHeaders()
       .append('Content-Type', 'application/x-www-form-urlencoded')
       .append('Authorization', 'Basic YW5ndWxhcjpAbmd1bEByMA==');
 
-    return this.http.post<any>(this.oauthAuthorizeUrl, payload, { headers })
+    return this.http.post<any>(this.oauthTokenUrl, payload, { headers })
       .toPromise()
-      .then((response: any) => {
+      .then((response:any) => {
         this.armazenarToken(response['access_token']);
         this.armazenarRefreshToken(response['refresh_token']);
-
         console.log('Novo access token criado!');
 
-        return Promise.resolve();
+        localStorage.removeItem('state');
+        localStorage.removeItem('codeVerifier');
+
+        return Promise.resolve(null);
       })
-      .catch(response => {
-        console.error('Erro ao gerar token com o code.', response);
+      .catch((response:any) => {
+        console.error('Erro ao gerar o token com o code.', response);
         return Promise.resolve();
       });
+
   }
 
   obterNovoAccessToken(): Promise<void> {
@@ -93,27 +95,21 @@ export class AuthService {
       .append('Content-Type', 'application/x-www-form-urlencoded')
       .append('Authorization', 'Basic YW5ndWxhcjpAbmd1bEByMA==');
 
-    const body = 'grant_type=refresh_token';
-
     const payload = new HttpParams()
       .append('grant_type', 'refresh_token')
-      .append('refresh_token', localStorage.getItem('refreshToken')!);
+      .append('refresh_token', localStorage.getItem('refreshToken')!)
 
-    return this.http.post<any>(this.oauthTokenUrl, body,
-        { headers, withCredentials: true })
+    return this.http.post<any>(this.oauthTokenUrl, payload,
+        { headers })
       .toPromise()
       .then((response:any) => {
         this.armazenarToken(response['access_token']);
-        this.armazenarRefreshToken(response['refresh_token']);
-
+        this.armazenarRefreshToken(response['refresh_token'])
         console.log('Novo access token criado!');
-
-        localStorage.removeItem('state');
-        localStorage.removeItem('codeVerifier');
 
         return Promise.resolve();
       })
-      .catch(response => {
+      .catch((response:any) => {
         console.error('Erro ao renovar token.', response);
         return Promise.resolve();
       });
@@ -164,7 +160,7 @@ export class AuthService {
 
   private gerarStringAleatoria(tamanho: number) {
     let resultado = '';
-    //Chars que são URL safe
+    //Chars são URL safe
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     for (let i = 0; i < tamanho; i++) {
       resultado += chars.charAt(Math.floor(Math.random() * chars.length));

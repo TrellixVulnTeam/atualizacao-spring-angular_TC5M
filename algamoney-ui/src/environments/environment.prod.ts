@@ -3,5 +3,5 @@ export const environment = {
   apiUrl: 'https://algamoney-api.herokuapp.com',
   tokenAllowedDomains: [ /algamoney-api.herokuapp.com/ ],
   tokenDisallowedRoutes: [/\/oauth2\/token/],
-  oauthCallbackUrl: 'https://algamoney-app.heroku.com/authorized'
+  oauthCallbackUrl: 'https:/algamoney-app.herokuapp.com/authorized'
 };

@@ -9,6 +9,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SegurancaRoutingModule } from './seguranca-routing.module';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { MoneyHttpInterceptor } from './money-http-interceptor';
+import { environment } from 'src/environments/environment';
 import { AuthorizedComponent } from './authorized/authorized.component';
 
 export function tokenGetter(): string {
@@ -23,9 +24,9 @@ export function tokenGetter(): string {
     JwtModule.forRoot({
       config: {
         tokenGetter,
-        allowedDomains: ['localhost:8080'],
-        disallowedRoutes: ['http://localhost:8080/oauth/token']
-      }
+        allowedDomains: environment.tokenAllowedDomains,
+        disallowedRoutes: environment.tokenDisallowedRoutes
+      }       
     }),
 
     InputTextModule,
